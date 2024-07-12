@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+  pish-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pish_web
+    command: gunicorn app.delivery.web.asgi:application -k uvicorn.workers.UvicornWorker --bind ${HOST}:${PORT} --log-level info
+    restart: always
+    volumes:
+      - .:/code
+      - ./logs/:/var/log/
+      - ./static/:/var/www/html/static
+      - ./media/:/var/www/html/media
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env
+
+  pish-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pish_bot
+    command: python -m app.delivery.bot
+    restart: always
+    volumes:
+      - .:/code
+    env_file:
+      - .env
